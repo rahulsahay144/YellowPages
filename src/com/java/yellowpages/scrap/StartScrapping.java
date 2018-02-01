@@ -32,6 +32,7 @@ import org.jsoup.select.Elements;
 public class StartScrapping {
 	
 	
+	private static final int START_PAGE = 16;
 	private static final int TOTAL_PAGES = 141;
 	
 	private static final String FOLDER_NAME = "automotive";
@@ -50,7 +51,7 @@ public class StartScrapping {
 		
 		
 		
-		for(int i=10; i <= TOTAL_PAGES; i++) {
+		for(int i=START_PAGE; i <= TOTAL_PAGES; i++) {
 			Document doc = Jsoup.connect("https://wallpapersite.com/" + FOLDER_NAME + "/?page="+i).get();
 			System.out.println(doc.title());
 			Elements newsHeadlines = doc.select(".pics p a");
