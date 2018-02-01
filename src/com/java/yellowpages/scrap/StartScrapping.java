@@ -3,6 +3,7 @@
  */
 package com.java.yellowpages.scrap;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +33,8 @@ import org.jsoup.select.Elements;
 public class StartScrapping {
 	
 	
-	private static final int START_PAGE = 16;
+	private static final int START_PAGE = 45;
 	private static final int TOTAL_PAGES = 141;
-	
 	private static final String FOLDER_NAME = "automotive";
 
 	/**
@@ -48,6 +48,15 @@ public class StartScrapping {
 //		searchString = br.readLine();
 		
 		disableSSLCertCheck();
+		
+		File file = new File("./images/" + FOLDER_NAME);
+        if (!file.exists()) {
+            if (file.mkdir()) {
+                System.out.println("Directory is created!");
+            } else {
+                System.out.println("Failed to create directory!");
+            }
+        }
 		
 		
 		
