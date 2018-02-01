@@ -33,6 +33,8 @@ public class StartScrapping {
 	
 	
 	private static final int TOTAL_PAGES = 141;
+	
+	private static final String FOLDER_NAME = "automotive";
 
 	/**
 	 * @param args
@@ -48,8 +50,8 @@ public class StartScrapping {
 		
 		
 		
-		for(int i=7; i <= TOTAL_PAGES; i++) {
-			Document doc = Jsoup.connect("https://wallpapersite.com/automotive/?page="+i).get();
+		for(int i=10; i <= TOTAL_PAGES; i++) {
+			Document doc = Jsoup.connect("https://wallpapersite.com/" + FOLDER_NAME + "/?page="+i).get();
 			System.out.println(doc.title());
 			Elements newsHeadlines = doc.select(".pics p a");
 			
@@ -121,7 +123,7 @@ public class StartScrapping {
 	public static void saveImage(String imageUrl) throws IOException {
 		URL url = new URL(imageUrl);
 		String fileName = url.getFile();
-		String destName = "./images" + fileName.substring(fileName.lastIndexOf("/"));
+		String destName = "./images/" + FOLDER_NAME + fileName.substring(fileName.lastIndexOf("/"));
 		System.out.println(destName);
 	 
 		InputStream is = url.openStream();
