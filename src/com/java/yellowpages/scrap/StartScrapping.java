@@ -33,7 +33,7 @@ import org.jsoup.select.Elements;
 public class StartScrapping {
 	
 	
-	private static final int START_PAGE = 45;
+	private static final int START_PAGE = 109;
 	private static final int TOTAL_PAGES = 141;
 	private static final String FOLDER_NAME = "automotive";
 
@@ -62,7 +62,9 @@ public class StartScrapping {
 		
 		for(int i=START_PAGE; i <= TOTAL_PAGES; i++) {
 			Document doc = Jsoup.connect("https://wallpapersite.com/" + FOLDER_NAME + "/?page="+i).get();
+			System.out.println("==================================================================");
 			System.out.println(doc.title());
+			System.out.println("==================================================================");
 			Elements newsHeadlines = doc.select(".pics p a");
 			
 			//Map<String, String> advocateLinkMap = new HashMap<String, String>();
@@ -81,8 +83,8 @@ public class StartScrapping {
 							Elements originalAnchors = e.select("a");
 							for (Element a : originalAnchors) {
 								System.out.println("Resolution : " + resolution + " ========= Image Link : " +  a.absUrl("href"));
-								Thread.sleep(1000); 
 								saveImage(a.absUrl("href"));
+								Thread.sleep(2000); 
 							}
 						}
 						//System.out.println(e.text());
