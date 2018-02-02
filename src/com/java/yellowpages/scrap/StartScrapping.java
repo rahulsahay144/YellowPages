@@ -12,6 +12,12 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -25,6 +31,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import us.monoid.web.Resty;
+
 
 /**
  * @author n689716
@@ -33,9 +41,9 @@ import org.jsoup.select.Elements;
 public class StartScrapping {
 	
 	
-	private static final int START_PAGE = 109;
-	private static final int TOTAL_PAGES = 141;
-	private static final String FOLDER_NAME = "automotive";
+	private static final int START_PAGE = 11;
+	private static final int TOTAL_PAGES = 13;
+	private static final String FOLDER_NAME = "anime";
 
 	/**
 	 * @param args
@@ -59,7 +67,8 @@ public class StartScrapping {
         }
 		
 		
-		
+        List<String> imageURLs = new ArrayList<String>();
+        
 		for(int i=START_PAGE; i <= TOTAL_PAGES; i++) {
 			Document doc = Jsoup.connect("https://wallpapersite.com/" + FOLDER_NAME + "/?page="+i).get();
 			System.out.println("==================================================================");
@@ -83,8 +92,10 @@ public class StartScrapping {
 							Elements originalAnchors = e.select("a");
 							for (Element a : originalAnchors) {
 								System.out.println("Resolution : " + resolution + " ========= Image Link : " +  a.absUrl("href"));
-								saveImage(a.absUrl("href"));
-								Thread.sleep(2000); 
+								
+								imageURLs.add(a.absUrl("href"));
+								//saveImage(a.absUrl("href"));
+								//Thread.sleep(2000); 
 							}
 						}
 						//System.out.println(e.text());
@@ -92,8 +103,84 @@ public class StartScrapping {
 //				}
 			}
 		}
+		
+		bulkSaveImage(imageURLs);
 	}
 	
+	/**
+	 * Sync Download
+	 * @param imageUrl
+	 * @throws IOException
+	 */
+	private static void saveImage(String imageUrl) throws IOException {
+		URL url = new URL(imageUrl);
+		String fileName = url.getFile();
+		String destName = "./images/" + FOLDER_NAME + fileName.substring(fileName.lastIndexOf("/"));
+		System.out.println(destName);
+	 
+		InputStream is = url.openStream();
+		OutputStream os = new FileOutputStream(destName);
+	 
+		byte[] b = new byte[2048];
+		int length;
+	 
+		while ((length = is.read(b)) != -1) {
+			os.write(b, 0, length);
+		}
+	 
+		is.close();
+		os.close();
+	}
+	
+	/**
+	 * Bulk Download
+	 * @param urls
+	 */
+	private static void bulkSaveImage(List<String> urls) {
+		try {
+			ExecutorService pool = Executors.newFixedThreadPool(urls.size());
+			List<Callable<File>> tasks = new ArrayList<Callable<File>>(urls.size());
+
+			System.out.println("+++++++++++++++++++++++++++++++++++++++++++++");
+			System.out.println("Total Images to Download ---------------- > "  + urls.size());
+			System.out.println("+++++++++++++++++++++++++++++++++++++++++++++");
+			
+			for (final String imageUrl : urls) {
+				URL url = new URL(imageUrl);
+				String fileName = url.getFile();
+				String destName = "./images/" + FOLDER_NAME + fileName.substring(fileName.lastIndexOf("/"));
+
+				tasks.add(new Callable<File>() {
+					public File call() throws Exception {
+						File f = new File(destName);
+						return new Resty().bytes(imageUrl).save(f);
+					}
+				});
+			}
+
+			System.out.println("DOWNLOAD START.......... Please wait...");
+			
+			List<Future<File>> results = pool.invokeAll(tasks);
+			int i = 1;
+			for (Future<File> ff : results) {
+				System.out.println(">>>>>>>>>>>>>>>> " + i + " -:- " + ff.get());
+				i++;
+			}
+			System.out.println("DOWNLOAD END..........");
+			
+			//ShutDown
+			pool.shutdown();
+		} 
+		catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+	
+	/**
+	 * Trust SSLs
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyManagementException
+	 */
 	private static void disableSSLCertCheck() throws NoSuchAlgorithmException, KeyManagementException {
 		// Create a trust manager that does not validate certificate chains
 		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
@@ -130,26 +217,6 @@ public class StartScrapping {
 
 		// Install the all-trusting host verifier
 		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-	}
-	
-	public static void saveImage(String imageUrl) throws IOException {
-		URL url = new URL(imageUrl);
-		String fileName = url.getFile();
-		String destName = "./images/" + FOLDER_NAME + fileName.substring(fileName.lastIndexOf("/"));
-		System.out.println(destName);
-	 
-		InputStream is = url.openStream();
-		OutputStream os = new FileOutputStream(destName);
-	 
-		byte[] b = new byte[2048];
-		int length;
-	 
-		while ((length = is.read(b)) != -1) {
-			os.write(b, 0, length);
-		}
-	 
-		is.close();
-		os.close();
 	}
 
 }
