@@ -5,30 +5,22 @@ package com.java.yellowpages.scrap;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.java.yellowpages.scrap.common.DateUtil;
+
 /**
  * @author n689716
  *
  */
-public class WeatherDataScrapper {
+public class WeatherDataScrapper extends AbstractScrapper {
 	
 	static String WEATHER_URL = "https://www.wunderground.com/history/airport/KDPA/{{YEAR}}/{{MONTH}}/{{DAY}}/DailyHistory.html?req_city=&req_state=&req_statename=&reqdb.zip=&reqdb.magic=&reqdb.wmo=";
 
@@ -169,51 +161,6 @@ public class WeatherDataScrapper {
 		
 		pw.write(sb.toString());
         pw.close();
-		
 
 	}
-	
-	/**
-	 * Trust SSLs
-	 * @throws NoSuchAlgorithmException
-	 * @throws KeyManagementException
-	 */
-	private static void disableSSLCertCheck() throws NoSuchAlgorithmException, KeyManagementException {
-		// Create a trust manager that does not validate certificate chains
-		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-			public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-				return null;
-			}
-
-			@Override
-			public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
-					throws CertificateException {
-				// TODO Auto-generated method stub
-				
-			}
-		} };
-
-		// Install the all-trusting trust manager
-		SSLContext sc = SSLContext.getInstance("SSL");
-		sc.init(null, trustAllCerts, new java.security.SecureRandom());
-		HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-		// Create all-trusting host name verifier
-		HostnameVerifier allHostsValid = new HostnameVerifier() {
-			public boolean verify(String hostname, SSLSession session) {
-				return true;
-			}
-		};
-
-		// Install the all-trusting host verifier
-		HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-	}
-
 }

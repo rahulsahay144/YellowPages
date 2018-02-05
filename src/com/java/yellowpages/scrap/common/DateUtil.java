@@ -1,4 +1,4 @@
-package com.java.yellowpages.scrap;
+package com.java.yellowpages.scrap.common;
 
 import java.util.Calendar;
 import java.util.Date;
