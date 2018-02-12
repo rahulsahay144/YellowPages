@@ -23,7 +23,7 @@ public class StartScrapping extends AbstractScrapper {
 	
 	private static final String SITE_URL = "http://eskipaper.com/";
 	private static final int START_PAGE = 1;
-	private static final String PROCESS_FOLDER = "christmas";
+	private static final String PROCESS_FOLDER = "";
 
 	/**
 	 * @param args
@@ -106,7 +106,12 @@ public class StartScrapping extends AbstractScrapper {
 					}
 				}
 				
-				bulkSaveImage(imageURLs, folderName);
+				if(imageURLs.size() > 0) {
+					bulkSaveImage(imageURLs, folderName);
+				}
+				else {
+					System.out.println("NO IMAGES FOUND In Folder - " + folderName);
+				}
 				
 				System.out.println("==================================================================");
 				System.out.println("Processing Folder - " + folderName + " : END");
