@@ -5,7 +5,6 @@ package com.java.yellowpages.scrap;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +21,9 @@ import org.jsoup.select.Elements;
  */
 public class StartScrapping extends AbstractScrapper {
 	
+	private static final String SITE_URL = "http://eskipaper.com/";
 	private static final int START_PAGE = 1;
-	private static final String PROCESS_FOLDER = "colors";
+	private static final String PROCESS_FOLDER = "christmas";
 
 	/**
 	 * @param args
@@ -32,19 +32,20 @@ public class StartScrapping extends AbstractScrapper {
 		disableSSLCertCheck();
 		
 		Map<String, String> folderURLNameMap = new LinkedHashMap<String, String>();
-		Document docMain = Jsoup.connect("http://eskipaper.com").get();
-		System.out.println("==================================================================");
-		System.out.println(docMain.title());
-		System.out.println("==================================================================");
+		Document docMain = Jsoup.connect(SITE_URL).get();
+//		System.out.println("==================================================================");
+//		System.out.println(docMain.title());
+//		System.out.println("==================================================================");
 		
 		Elements folderListItems = docMain.select(".toplevel ul li");
 		for (Element folderElem : folderListItems) {
 			String folderURL = folderElem.select("a").get(0).absUrl("href");
-			String folderName = folderElem.select("a").get(0).text();
+			String folderName = folderURL.substring(SITE_URL.length(), folderURL.length() - 1);
 			
 			folderURLNameMap.put(folderName, folderURL);
 		}
 		
+		System.out.println("Total Folders : " + folderURLNameMap.size());
 		for (Map.Entry<String, String> entry : folderURLNameMap.entrySet()) {
 		    String folderName = entry.getKey();
 		    String folderURL = entry.getValue();
@@ -87,9 +88,9 @@ public class StartScrapping extends AbstractScrapper {
 				for(int i=START_PAGE; i <= TOTAL_PAGES; i++) {
 					Document doc = Jsoup.connect(folderURL + i + "/").get();
 					
-					System.out.println("==================================================================");
-					System.out.println(doc.title() + " Page - " + i);
-					System.out.println("==================================================================");
+					System.out.println("******************************************************************");
+					System.out.println(doc.title() + " || Page - " + i + " OF " + TOTAL_PAGES);
+					System.out.println("******************************************************************");
 					Elements newsHeadlines = doc.select(".category-list-item");
 					
 					for (Element headline : newsHeadlines) {
