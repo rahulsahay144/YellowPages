@@ -14,6 +14,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.java.yellowpages.concurrent.AppThreadPool;
+
 
 /**
  * @author n689716
@@ -23,13 +25,15 @@ public class StartScrapping extends AbstractScrapper {
 	
 	private static final String SITE_URL = "http://eskipaper.com/";
 	private static final int START_PAGE = 1;
-	private static final String PROCESS_FOLDER = "";
+	private static final String PROCESS_FOLDER = "3d";
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
 		disableSSLCertCheck();
+		
+		AppThreadPool.init();
 		
 		Map<String, String> folderURLNameMap = new LinkedHashMap<String, String>();
 		Document docMain = Jsoup.connect(SITE_URL).get();
@@ -122,6 +126,9 @@ public class StartScrapping extends AbstractScrapper {
 	        	System.out.println("Error while processing Folder : " + folderName);
 	        	System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	        	e.printStackTrace();
+	        }
+	        finally {
+	        	AppThreadPool.getInstance().shutdown();
 	        }
 		    
 		}

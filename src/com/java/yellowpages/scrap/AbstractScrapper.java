@@ -12,12 +12,7 @@ import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -25,6 +20,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import com.java.yellowpages.concurrent.ITask;
+import com.java.yellowpages.concurrent.TaskExecutor;
 
 import us.monoid.web.Resty;
 
@@ -107,39 +105,37 @@ public abstract class AbstractScrapper {
 	 * @param urls
 	 */
 	public static void bulkSaveImage(List<String> urls, String folderName) {
+		
+		TaskExecutor executor = new TaskExecutor(folderName);
+		
+		
 		try {
-			ExecutorService pool = Executors.newFixedThreadPool(urls.size());
-			List<Callable<File>> tasks = new ArrayList<Callable<File>>(urls.size());
-
+			
 			System.out.println("+++++++++++++++++++++++++++++++++++++++++++++");
 			System.out.println("Total Images to Download ---------------- > "  + urls.size());
 			System.out.println("+++++++++++++++++++++++++++++++++++++++++++++");
 			
-			for (final String imageUrl : urls) {
-				URL url = new URL(imageUrl);
-				String fileName = url.getFile();
-				String destName = "./images/" + folderName + fileName.substring(fileName.lastIndexOf("/"));
-
-				tasks.add(new Callable<File>() {
-					public File call() throws Exception {
+			System.out.println("DOWNLOAD START.......... Please wait...");
+			for (String imageUrl : urls) {
+				
+				executor.addTask(new ITask() {
+					@Override
+					public void execute() throws Exception {
+						URL url = new URL(imageUrl);
+						String fileName = url.getFile();
+						String destName = "./images/" + folderName + fileName.substring(fileName.lastIndexOf("/"));
+						
+						System.out.println("Processing >>>>>>>>>>>>>>>> " + destName);
+						
 						File f = new File(destName);
-						return new Resty().bytes(imageUrl).save(f);
+						new Resty().bytes(imageUrl).save(f);
 					}
 				});
 			}
-
-			System.out.println("DOWNLOAD START.......... Please wait...");
 			
-			List<Future<File>> results = pool.invokeAll(tasks);
-			int i = 1;
-			for (Future<File> ff : results) {
-				System.out.println(">>>>>>>>>>>>>>>> " + i + " -:- " + ff.get());
-				i++;
-			}
+			executor.execute();
+			
 			System.out.println("DOWNLOAD END..........");
-			
-			//ShutDown
-			pool.shutdown();
 		} 
 		catch (Exception e) {
 	        e.printStackTrace();
