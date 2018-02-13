@@ -25,15 +25,15 @@ public class StartScrapping extends AbstractScrapper {
 	
 	private static final String SITE_URL = "http://eskipaper.com/";
 	private static final int START_PAGE = 1;
-	private static final String PROCESS_FOLDER = "3d";
+	private static final String PROCESS_FOLDER = "christmas";
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws Exception {
-		disableSSLCertCheck();
-		
 		AppThreadPool.init();
+		
+		disableSSLCertCheck();
 		
 		Map<String, String> folderURLNameMap = new LinkedHashMap<String, String>();
 		Document docMain = Jsoup.connect(SITE_URL).get();

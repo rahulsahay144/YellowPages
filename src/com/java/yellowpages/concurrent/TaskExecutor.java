@@ -116,10 +116,14 @@ public class TaskExecutor {
 					totalExecutionTime += task.getExecutionTime();
 					if(task.getExecutionTime() > executionTimeOfBiggestTask)
 						executionTimeOfBiggestTask = task.getExecutionTime();
-					taskExeSummary.append("\nTask " + task.getTask().getClass().getSimpleName() + " completed in " + task.getExecutionTime() + " milliseconds.");
+					taskExeSummary.append("\n" + count + ". Task " + task.getTask().getClass().getSimpleName() + " completed in " + task.getExecutionTime() + " milliseconds.");
 				}
-				if(totalExecutionTime != 0)
+				if(totalExecutionTime != 0) {
+					taskExeSummary.append("\n");
+					taskExeSummary.append("\nTotal Threads [" + taskList.size() + "] with Execution time [" +  totalExecutionTime + " milliseconds].");
 					taskExeSummary.append("\nGain due to multitasking is " + 100*(totalExecutionTime-executionTimeOfBiggestTask)/totalExecutionTime + "%.");
+					taskExeSummary.append("\n");
+				}
 				System.out.println(taskExeSummary.toString());
 			}else {
 				StringBuilder taskExeSummary = new StringBuilder();
